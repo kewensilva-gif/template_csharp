@@ -1,10 +1,16 @@
 using RO.DevTest.Domain.Entities;
+using System.Linq.Expressions;
 
-public interface ICustomerRepository
+namespace RO.DevTest.Domain.Interfaces.Repositories
 {
-    Task<IEnumerable<Customer>> GetAllAsync();
-    Task<Customer?> GetByIdAsync(Guid id);
-    Task AddAsync(Customer customer);
-    Task UpdateAsync(Customer customer);
-    Task DeleteAsync(Guid id);
+    public interface ICustomerRepository
+    {
+        Task<IEnumerable<Customer>> GetAllAsync();
+        Task<Customer?> GetByIdAsync(Guid id);
+        Task<IEnumerable<Customer>> GetAsync(Expression<Func<Customer, bool>> predicate);
+        Task AddAsync(Customer customer);
+        Task UpdateAsync(Customer customer);
+        Task DeleteAsync(Guid id);
+        Task<bool> ExistsAsync(Expression<Func<Customer, bool>> predicate);
+    }
 }

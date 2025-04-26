@@ -98,4 +98,5 @@ public interface IIdentityAbstractor {
     /// A <see cref="Task{IdentityResult}"/>
     /// </returns>
     Task<IdentityResult> DeleteUser(User user);
+    Task<IdentityResult> DeleteUserAsync(User user);
 }
