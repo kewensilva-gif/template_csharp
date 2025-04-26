@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using RO.DevTest.Application.Contracts.Infrastructure;
 using RO.DevTest.Domain.Entities;
+using RO.DevTest.Domain.Interfaces.Repositories;
 using RO.DevTest.Infrastructure.Abstractions;
 using RO.DevTest.Persistence;
+using RO.DevTest.Persistence.Repositories;
 
 namespace RO.DevTest.Infrastructure.IoC;
 
@@ -23,8 +25,12 @@ public static class InfrastructureDependecyInjector {
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<DefaultContext>()
             .AddDefaultTokenProviders();
-
+            
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ISaleRepository, SaleRepository>();
         services.AddScoped<IIdentityAbstractor, IdentityAbstractor>();
+
 
         return services;
     }

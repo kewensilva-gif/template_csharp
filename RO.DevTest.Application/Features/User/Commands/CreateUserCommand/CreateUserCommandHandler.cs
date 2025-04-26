@@ -12,22 +12,25 @@ namespace RO.DevTest.Application.Features.User.Commands.CreateUserCommand;
 public class CreateUserCommandHandler(IIdentityAbstractor identityAbstractor) : IRequestHandler<CreateUserCommand, CreateUserResult> {
     private readonly IIdentityAbstractor _identityAbstractor = identityAbstractor;
 
-    public async Task<CreateUserResult> Handle(CreateUserCommand request, CancellationToken cancellationToken) {
-        CreateUserCommandValidator validator = new();
-        ValidationResult validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if(!validationResult.IsValid) {
+    public async Task<CreateUserResult> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    {
+        var validator = new CreateUserCommandValidator();
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        
+        if (!validationResult.IsValid)
             throw new BadRequestException(validationResult);
-        }
 
-        Domain.Entities.User newUser = request.AssignTo();
-        IdentityResult userCreationResult = await _identityAbstractor.CreateUserAsync(newUser, request.Password);
-        if(!userCreationResult.Succeeded) {
+        var newUser = request.AssignTo();
+        var userCreationResult = await _identityAbstractor.CreateUserAsync(newUser, request.Password);
+        
+        if (!userCreationResult.Succeeded)
             throw new BadRequestException(userCreationResult);
-        }
 
-        IdentityResult userRoleResult = await _identityAbstractor.AddToRoleAsync(newUser, request.Role);
-        if(!userRoleResult.Succeeded) {
+        var userRoleResult = await _identityAbstractor.AddToRoleAsync(newUser, request.Role);
+        
+        if (!userRoleResult.Succeeded)
+        {
+            await _identityAbstractor.DeleteUserAsync(newUser);
             throw new BadRequestException(userRoleResult);
         }
 
