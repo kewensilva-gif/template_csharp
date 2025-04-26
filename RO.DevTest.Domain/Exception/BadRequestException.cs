@@ -4,15 +4,31 @@ using Microsoft.AspNetCore.Identity;
 
 namespace RO.DevTest.Domain.Exception;
 
-// [TODO] Standardize requests
-// [TODO] Display a semantic error message to the client
-/// <summary>
-/// Returns a <see cref="HttpStatusCode.BadRequest"/> to
-/// the request
-/// </summary>
-public class BadRequestException : ApiException {
+public class BadRequestException : ApiException
+{
+    public object? ErrorDetails { get; }
+    
     public override HttpStatusCode StatusCode => HttpStatusCode.BadRequest;
-    public BadRequestException(IdentityResult result) : base(result) { }
-    public BadRequestException(string error) : base(error) { }
-    public BadRequestException(ValidationResult validationResult) : base(validationResult) { }
+
+    public BadRequestException(string message) : base(message) { }
+
+    public BadRequestException(IdentityResult result) 
+        : base("Falha na operação de identidade")
+    {
+        ErrorDetails = result.Errors
+            .GroupBy(e => e.Code)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.Description).ToArray());
+    }
+
+    public BadRequestException(ValidationResult validationResult) 
+        : base("Um ou mais erros de validação ocorreram")
+    {
+        ErrorDetails = validationResult.Errors
+            .GroupBy(e => e.PropertyName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.ErrorMessage).ToArray());
+    }
 }
