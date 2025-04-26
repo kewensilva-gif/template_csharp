@@ -18,9 +18,4 @@ public class UsersController(IMediator mediator) : Controller {
         CreateUserResult response = await _mediator.Send(request);
         return Created(HttpContext.Request.GetDisplayUrl(), response);
     }
-
-    [HttpGet]
-    public async Task<IActionResult> GetUsers() {
-        return Ok("API está funcionando 🚀");
-    }
 }
