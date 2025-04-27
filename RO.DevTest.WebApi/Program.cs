@@ -9,6 +9,8 @@ using RO.DevTest.Persistence.IoC;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using RO.DevTest.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -102,7 +104,12 @@ builder.Services
     .InjectInfrastructureDependencies();
 
 var app = builder.Build();
-
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<DefaultContext>();
+    context.Database.Migrate();
+}
 // Pipeline de middlewares
 if (app.Environment.IsDevelopment())
 {

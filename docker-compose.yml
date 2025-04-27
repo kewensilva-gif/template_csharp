@@ -1,36 +1,34 @@
-version: '3.8'
+version: '3.9'
 
 services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: oficinasdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
   api:
     build:
       context: .
       dockerfile: RO.DevTest.WebApi/Dockerfile
+    container_name: ro_devtest_api
     ports:
-      - "5000:8080"
-    depends_on:
-      - postgres
+      - "5087:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=oficinasdb;Username=admin;Password=admin123
-    networks:
-      - backend
-
-  postgres:
-    image: postgres:15
-    container_name: oficinas-postgres
-    environment:
-      POSTGRES_DB: oficinasdb
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - backend
-
-networks:
-  backend:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=oficinasdb;Username=postgres;Password=1234
+      - Jwt__Key=R0d@-D3v-T0k3n-S3cr3t0-@2024!-XYZ123
+      - Jwt__Issuer=ro.dev.api
+      - Jwt__Audience=ro.dev.client
+    depends_on:
+      - postgres
 
 volumes:
-  pgdata:
+  postgres-data:

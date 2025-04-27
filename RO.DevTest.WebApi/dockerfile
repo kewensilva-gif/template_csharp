@@ -1,35 +1,27 @@
-# Etapa base (runtime)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 5000
-
-# Etapa build (SDK completo para compilar o projeto)
+# Etapa 1 - Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Copia os arquivos de projeto e restaura as dependências
-COPY ["RO.DevTest.WebApi/RO.DevTest.WebApi.csproj", "RO.DevTest.WebApi/"]
-COPY ["RO.DevTest.Application/RO.DevTest.Application.csproj", "RO.DevTest.Application/"]
-COPY ["RO.DevTest.Domain/RO.DevTest.Domain.csproj", "RO.DevTest.Domain/"]
-COPY ["RO.DevTest.Infrastructure/RO.DevTest.Infrastructure.csproj", "RO.DevTest.Infrastructure/"]
-COPY ["RO.DevTest.Persistence/RO.DevTest.Persistence.csproj", "RO.DevTest.Persistence/"]
+# Copia csproj e restaura dependências
+COPY *.sln .
+COPY RO.DevTest.Application/RO.DevTest.Application.csproj ./RO.DevTest.Application/
+COPY RO.DevTest.Domain/RO.DevTest.Domain.csproj ./RO.DevTest.Domain/
+COPY RO.DevTest.Persistence/RO.DevTest.Persistence.csproj ./RO.DevTest.Persistence/
+COPY RO.DevTest.Infrastructure/RO.DevTest.Infrastructure.csproj ./RO.DevTest.Infrastructure/
+COPY RO.DevTest.WebApi/RO.DevTest.WebApi.csproj ./RO.DevTest.WebApi/
 
-RUN dotnet restore "RO.DevTest.WebApi/RO.DevTest.WebApi.csproj"
+RUN dotnet restore RO.DevTest.WebApi/RO.DevTest.WebApi.csproj
 
-# Copia todo o restante do código
+# Copia tudo
 COPY . .
 
-# Compila o projeto
-WORKDIR "/src/RO.DevTest.WebApi"
-RUN dotnet build -c Release -o /app/build
+# Publica o app
+WORKDIR /app/RO.DevTest.WebApi
+RUN dotnet publish -c Release -o out
 
-# Etapa de publicação
-FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish
-
-# Cria a imagem final (apenas runtime)
-FROM base AS final
+# Etapa 2 - Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/RO.DevTest.WebApi/out .
 
 ENTRYPOINT ["dotnet", "RO.DevTest.WebApi.dll"]
