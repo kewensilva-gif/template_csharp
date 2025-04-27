@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using RO.DevTest.Domain.Entities;
-using RO.DevTest.Domain.Interfaces.Repositories;
 
 namespace RO.DevTest.Persistence.Repositories;
 
@@ -10,9 +8,11 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
     {
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync() =>
-        await Context.Set<Product>().ToListAsync();
-
+    public async Task<IEnumerable<Product>> GetAllAsync(int page = 0, int size = 2) =>
+        await Context.Set<Product>()
+        .Skip(size * page)
+        .Take(size)
+        .ToListAsync();
     public async Task<Product?> GetByIdAsync(Guid id) =>
         await Context.Set<Product>().FindAsync(id);
 

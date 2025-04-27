@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RO.DevTest.Domain.Entities;
-using RO.DevTest.Domain.Interfaces.Repositories;
+using RO.DevTest.Persistence.Repositories;
 using System.Security.Claims;
 
 namespace RO.DevTest.WebApi.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class SaleController : ControllerBase
@@ -18,16 +16,16 @@ public class SaleController : ControllerBase
         _saleRepository = saleRepository;
     }
 
-    // Somente Admin vê todas as vendas
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(int page = 0, int size = 10)
     {
-        var sales = await _saleRepository.GetAllAsync();
-        return Ok(sales);
+        var sales = await _saleRepository.GetAllAsync(page, size);
+        var totalRecords = sales.Count();
+        var pagedSales = new PagedResult<Sale>(sales, page, size, totalRecords);
+        return Ok(pagedSales);
     }
 
-    // Usuário autenticado vê as próprias vendas
     [HttpGet("me")]
     public async Task<IActionResult> GetMySales()
     {
@@ -36,7 +34,6 @@ public class SaleController : ControllerBase
         return Ok(sales);
     }
 
-    // Ver uma venda específica
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -45,11 +42,9 @@ public class SaleController : ControllerBase
         return Ok(sale);
     }
 
-    // Criar uma nova venda
     [HttpPost]
     public async Task<IActionResult> Create(Sale sale)
     {
-        // Atribui o ID do usuário logado como vendedor
         sale.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         await _saleRepository.AddAsync(sale);

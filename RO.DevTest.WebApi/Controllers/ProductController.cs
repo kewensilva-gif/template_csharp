@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RO.DevTest.Domain.Entities;
-using RO.DevTest.Domain.Interfaces.Repositories;
+using RO.DevTest.Persistence.Repositories;
 
 namespace RO.DevTest.WebApi.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ProductController : ControllerBase
@@ -18,10 +16,13 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(int page = 0, int size = 10)
     {
-        var products = await _productRepository.GetAllAsync();
-        return Ok(products);
+        var products = await _productRepository.GetAllAsync(page, size);
+
+        var totalRecords = products.Count();
+        var pagedProducts = new PagedResult<Product>(products, page, size, totalRecords);
+        return Ok(pagedProducts);
     }
 
     [HttpGet("{id}")]

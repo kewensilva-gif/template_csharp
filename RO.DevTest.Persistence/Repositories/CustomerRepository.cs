@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using RO.DevTest.Domain.Entities;
 using RO.DevTest.Domain.Interfaces.Repositories;
 using System.Linq.Expressions;
 
@@ -14,9 +13,11 @@ public class CustomerRepository : ICustomerRepository
         Context = context;
     }
 
-    public async Task<IEnumerable<Customer>> GetAllAsync() =>
-        await Context.Set<Customer>().ToListAsync();
-
+    public async Task<IEnumerable<Customer>> GetAllAsync(int page = 0, int size = 10) =>
+        await Context.Set<Customer>()
+        .Skip(size * page)
+        .Take(size)
+        .ToListAsync();
     public async Task<Customer?> GetByIdAsync(Guid id) =>
         await Context.Set<Customer>().FindAsync(id);
 

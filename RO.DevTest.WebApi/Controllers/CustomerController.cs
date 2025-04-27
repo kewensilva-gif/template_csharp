@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RO.DevTest.Domain.Entities;
 using RO.DevTest.Domain.Interfaces.Repositories;
+using RO.DevTest.Persistence.Repositories;
 
 namespace RO.DevTest.WebApi.Controllers;
 
-// [Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class CustomerController : ControllerBase
@@ -18,10 +17,12 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(int page = 0, int size = 10)
     {
-        var customers = await _customerRepository.GetAllAsync();
-        return Ok(customers);
+        var customers = await _customerRepository.GetAllAsync(page, size);
+        var totalRecords = customers.Count();
+        var pagedCustomers = new PagedResult<Customer>(customers, page, size, totalRecords);
+        return Ok(pagedCustomers);
     }
 
     [HttpGet("{id}")]
@@ -30,11 +31,11 @@ public class CustomerController : ControllerBase
         var customer = await _customerRepository.GetByIdAsync(id);
         if (customer is null)
             return NotFound();
-
+        
         return Ok(customer);
     }
 
-    // [Authorize(Roles = "Admin")] // apenas admin pode criar
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create(Customer customer)
     {

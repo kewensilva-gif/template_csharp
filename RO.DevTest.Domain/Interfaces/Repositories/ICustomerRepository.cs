@@ -5,7 +5,7 @@ namespace RO.DevTest.Domain.Interfaces.Repositories
 {
     public interface ICustomerRepository
     {
-        Task<IEnumerable<Customer>> GetAllAsync();
+        Task<IEnumerable<Customer>> GetAllAsync(int page, int size);
         Task<Customer?> GetByIdAsync(Guid id);
         Task<IEnumerable<Customer>> GetAsync(Expression<Func<Customer, bool>> predicate);
         Task AddAsync(Customer customer);

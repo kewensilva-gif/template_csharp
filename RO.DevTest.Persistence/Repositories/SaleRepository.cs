@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using RO.DevTest.Domain.Entities;
-using RO.DevTest.Domain.Interfaces.Repositories;
 
 namespace RO.DevTest.Persistence.Repositories;
 
@@ -13,16 +11,18 @@ public class SaleRepository : BaseRepository<Sale>, ISaleRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Sale>> GetAllAsync()
+    public async Task<IEnumerable<Sale>> GetAllAsync(int page = 0, int size = 10)
     {
         return await _context.Sales
             .Include(s => s.Customer)
             .Include(s => s.Items)
                 .ThenInclude(i => i.Product)
             .Include(s => s.User)
+            .Skip(size * page)
+            .Take(size)
             .ToListAsync();
     }
-
+    
     public async Task<IEnumerable<Sale>> GetByUserAsync(string userId)
     {
         return await _context.Sales
