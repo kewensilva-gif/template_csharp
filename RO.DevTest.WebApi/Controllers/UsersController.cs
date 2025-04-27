@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
@@ -6,6 +7,7 @@ using RO.DevTest.Application.Features.User.Commands.CreateUserCommand;
 
 namespace RO.DevTest.WebApi.Controllers;
 
+[AllowAnonymous]
 [Route("api/user")]
 [OpenApiTags("Users")]
 public class UsersController(IMediator mediator) : Controller {

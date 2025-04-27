@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using RO.DevTest.Application.Features.Auth.Commands.LoginCommand;
@@ -11,7 +12,7 @@ namespace RO.DevTest.WebApi.Controllers;
 public class AuthController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
-
+    [AllowAnonymous]
     [HttpPost("login")]
     [OpenApiOperation("Login", "Autentica um usuário e retorna o token JWT")]
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
