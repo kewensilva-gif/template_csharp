@@ -9,7 +9,10 @@ public class DefaultContext : IdentityDbContext<User> {
     public DefaultContext() { }
 
     public DefaultContext(DbContextOptions<DefaultContext> options) : base(options) { }
-
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Customer> Customers { get; set; }
+    public DbSet<Sale> Sales { get; set; }
+    public DbSet<SaleItem> SaleItems { get; set; }
     protected override void OnModelCreating(ModelBuilder builder) {
         builder.HasPostgresExtension("uuid-ossp");
         builder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);

@@ -54,4 +54,9 @@ public class IdentityAbstractor : IIdentityAbstractor {
 
         return await _userManager.AddToRoleAsync(user, role.ToString());
     }
+
+    public async Task<IdentityResult> DeleteUserAsync(User user)
+    {
+        return await _userManager.DeleteAsync(user);
+    }
 }
